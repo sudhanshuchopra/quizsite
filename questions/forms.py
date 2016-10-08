@@ -22,7 +22,7 @@ class QuestionForm(forms.Form):
 			raise forms.ValidationError(
 				"correct choice must be equal to one of the above choices")
 class PracticeForm(forms.Form)			:
-	choices_given=forms.ChoiceField(widget=forms.RadioSelect())
+	choices_given=forms.ChoiceField(widget=forms.RadioSelect(),required=False)
 	def __init__(self,*args,**kwargs):
 		id=kwargs.pop('id')
 		super(PracticeForm,self).__init__(*args,**kwargs)

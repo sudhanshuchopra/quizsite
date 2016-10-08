@@ -1,5 +1,5 @@
-﻿var action;
-var uncheck=(function(){
+var action;
+var check=(function(){
   var setCheck;
     function radio(e){
     if(setCheck != this){
@@ -21,18 +21,11 @@ var uncheck=(function(){
        dataType: 'json',
        contentType: false,
        success: function(response, xhr) {
-         result=response.result;
-         label_list=response.label_list;
-         var t="[id=id_choices_given_"
-         var u="]";
-         for(var i=0;i<label_list.length;i++)
-         {
-         	var j=i+1;
-         	var c=t+j+u;
-         	rad_list=$(c);
+         correct=response.correct;
+         rad_list=$("[id=id_choices_given]")
          	for(var x=0;x<rad_list.length;x++)
          	{
-         		if(rad_list[x].children[1].innerHTML==label_list[i])
+         		if(rad_list[x].children[1].innerHTML==correct)
          		{
          			rad_list[x].style.backgroundColor="#7986cb";
          		}
@@ -42,16 +35,14 @@ var uncheck=(function(){
          		}
          	}
 
-         }
-        var txt="<div class='row green lighten-3'><div class='col s12'><h4>Congrats !!!</h4><h5>You Score is ";
-        txt=txt+result;
-        txt=txt+"</h5></div></div>";
-        $(txt).insertBefore("#beforeit");
+         
          
          myrads=$('form')[0].getElementsByClassName('radio');
          for(var k=0;k<myrads.length;k++)
           myrads[k].children[0].disabled=true;
-         $("#login-btn").innerHTML="TRY MORE";
+         $("#login-btn").hide();
+         $("#pin").show();
+
        },
        error: function(error) {
          console.log(error);

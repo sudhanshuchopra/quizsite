@@ -124,21 +124,13 @@ def practice(request,id=None):
 			ques_obj=Question.objects.get(pk=id)
 			p=PracticeForm(request.POST,id=id)
 			if (p.is_valid()):
-				value=p.cleaned_data.get('choices_given')
 				choices=ques_obj.choices_created.all()
 				k=False
 				for x in choices:
 					if(x.correct==True):
 						correct=x.pk
 				correct=Choice.objects.get(pk=correct)
-				value=Choice.objects.get(pk=value)
-				if(correct==value)	:
-					k=True
-				if k==False:
-					message="your answer is wrong"
-				else:
-					message="your answer is correct "
-				return render(request,'question/answer.html',{'message':message,'q_id':ques_obj.id,'correct':correct,'value':value})
+				return JsonResponse({'correct':correct.choice_text})
 			else:
 				context={'p':p,'q_id':ques_obj.id,'q_text':ques_obj.question}
 				return render(request,'question/practice.html',context)
@@ -306,77 +298,81 @@ def results(request,id=None):
 		raise Http404();
 	else:
 		test_taken=Test.objects.filter(user=user)
-		context={'test_taken':test_taken}
+		test_taken2=[]
+		for x in test_taken:
+		    if(x.marks_scored!=None):
+		        test_taken2.append(x)
+		context={'test_taken':test_taken2}
 		return render(request,'question/result1.html',context)	
 @login_required
 def result(request,id)	:
 	test=get_object_or_404(Test,pk=id)
 	marks=test.marks_scored
 	return render(request,'question/result.html',{'marks':marks,'m':'marks scored'})
-#@require_POST
-#@login_required
-#def check_quiz(request,id):
-#		test=get_object_or_404(Test,pk=id)	
-#		quiz=test.quiz
-#		if(test.marks_scored==None):
-#			raise Http404
-#		ques_list=[]
-#		k=quiz.ques_1
-#		ques_list.append(k)
-#		k=quiz.ques_2
-#		ques_list.append(k)
-#		k=quiz.ques_3
-#		ques_list.append(k)
-#		k=quiz.ques_4
-#		ques_list.append(k)
-#		k=quiz.ques_5
-#		ques_list.append(k)
-#		k=quiz.ques_6
-#		ques_list.append(k)
-#		k=quiz.ques_7
-#		ques_list.append(k)
-#		k=quiz.ques_8
-#		ques_list.append(k)
-#		k=quiz.ques_9
-#		ques_list.append(k)
-#		k=quiz.ques_10
-#		ques_list.append(k)
-#		q=QuizForm(request.POST,ques_list=ques_list)
-#		label_list=[]
-#		if(q.is_valid()):
-#			count=1
-#			marks=0
-#			while(count<=10):
-#				ques_obj=q.cleaned_data['question_id_%s' %count]
-#				ques_obj=Question.objects.get(pk=ques_obj)
-#				value=q.cleaned_data.get('choices_given_%s' %count)
-#				choices=ques_obj.choices_created.all()
-#				k=False
-#				for x in choices:
-#					if(x.correct==True):
-#						correct=x.pk
-#				correct=Choice.objects.get(pk=correct)
-#				try:
-#					value=Choice.objects.get(pk=value)
-#				except:
-#					value=None	
-#				if(correct==value)	:
-#					k=True
-#				if(k==True)	:
-#					marks=marks+4
-#					label_list.append(' '+'<p><i class="fa fa-check" aria-hidden="true"></i>&nbsp;correct answer</p>')
-#				elif(value==None):
-#					mark=marks;
-#					label_list.append(' '+'<p><i class="fa fa-circle" aria-hidden="true"></i>&nbsp;Not attempted</p>')
-#				else:
-#					marks=marks-1;
-#					label_list.append(' '+'<p><i class="fa fa-close" aria-hidden="true"></i>&nbsp;Incorrect answer</p>')
-#				count=count+1
-#				test.marks_scored=marks
-#				test.save()
-#			return JsonResponse({'label_list':label_list,'result':marks})
-#		else:
-#			return JsonResponse({'errors':q.errors})
+@require_POST
+@login_required
+def check_quiz(request,id):
+		test=get_object_or_404(Test,pk=id)	
+		quiz=test.quiz
+		if(test.marks_scored!=None):
+			raise Http404
+		ques_list=[]
+		k=quiz.ques_1
+		ques_list.append(k)
+		k=quiz.ques_2
+		ques_list.append(k)
+		k=quiz.ques_3
+		ques_list.append(k)
+		k=quiz.ques_4
+		ques_list.append(k)
+		k=quiz.ques_5
+		ques_list.append(k)
+		k=quiz.ques_6
+		ques_list.append(k)
+		k=quiz.ques_7
+		ques_list.append(k)
+		k=quiz.ques_8
+		ques_list.append(k)
+		k=quiz.ques_9
+		ques_list.append(k)
+		k=quiz.ques_10
+		ques_list.append(k)
+		q=QuizForm(request.POST,ques_list=ques_list)
+		label_list=[]
+		if(q.is_valid()):
+			count=1
+			marks=0
+			while(count<=10):
+				ques_obj=q.cleaned_data['question_id_%s' %count]
+				ques_obj=Question.objects.get(pk=ques_obj)
+				value=q.cleaned_data.get('choices_given_%s' %count)
+				choices=ques_obj.choices_created.all()
+				k=False
+				for x in choices:
+					if(x.correct==True):
+						correct=x.pk
+				correct=Choice.objects.get(pk=correct)
+				try:
+					value=Choice.objects.get(pk=value)
+				except:
+					value=None	
+				if(correct==value)	:
+					k=True
+				if(k==True)	:
+					marks=marks+4
+					label_list.append(correct.choice_text)
+				elif(value==None):
+					mark=marks;
+					label_list.append(correct.choice_text)
+				else:
+					marks=marks-1;
+					label_list.append(correct.choice_text)
+				count=count+1
+				test.marks_scored=marks
+				test.save()
+			return JsonResponse({'label_list':label_list,'result':marks})
+		else:
+			return JsonResponse({'errors':q.errors})
 
 
 

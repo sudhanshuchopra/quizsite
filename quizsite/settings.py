@@ -81,8 +81,8 @@ WSGI_APPLICATION = 'quizsite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'quizsite5',
-        'PASSWORD':'connect',
+        'NAME': 'quizsite6',
+        'PASSWORD':'sud96',
         'PORT':3306,
         'HOST':'localhost',
         'USER':'root'
